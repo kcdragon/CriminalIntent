@@ -12,9 +12,11 @@
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeLab.java~ \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListActivity.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListActivity.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment$1.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment$CrimeAdapter.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/Listener.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$attr.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$drawable.class \
 /Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$id.class \

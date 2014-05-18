@@ -42,4 +42,8 @@ public class CrimeLab {
 	}
 	return null;
     }
+
+    public void addListener(final Listener listener) {
+	Crime.addListener(listener);
+    }
 }
