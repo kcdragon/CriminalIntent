@@ -1,0 +1,27 @@
+/Users/mdalton/Android/CriminalIntent/bin/classes.dex : \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/BuildConfig.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/Crime.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/Crime.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeActivity.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeActivity.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeFragment$1.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeFragment$2.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeFragment.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeFragment.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeLab.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeLab.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListActivity.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListActivity.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment$CrimeAdapter.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/CrimeListFragment.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$attr.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$drawable.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$id.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$layout.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R$string.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/R.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/SingleFragmentActivity.class \
+/Users/mdalton/Android/CriminalIntent/bin/classes/com/bignerdranch/android/criminalintent/SingleFragmentActivity.java~ \
+/Users/mdalton/Android/CriminalIntent/bin/classes/R.java.d \
+/Users/mdalton/Android/CriminalIntent/bin/dexedLibs/android-support-v4-afc1eb9f0c8a9cad7a38ef7da5610c24.jar \

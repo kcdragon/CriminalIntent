@@ -1,0 +1,1 @@
+ant debug && adb shell pm uninstall -k com.bignerdranch.android.geoquiz && adb install bin/GeoQuiz-debug.apk
