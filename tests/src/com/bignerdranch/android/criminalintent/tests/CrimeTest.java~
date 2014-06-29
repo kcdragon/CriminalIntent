@@ -1,0 +1,14 @@
+package com.bignerdranch.android.criminalintent.tests;
+
+import android.test.AndroidTestCase;
+
+import com.bignerdranch.android.criminalintent.Crime;
+
+public class CrimeTest extends AndroidTestCase {
+
+    public void testTitle() {
+	final Crime crime = new Crime();
+	crime.setTitle("Foo");
+	assertEquals("Foo", crime.getTitle());
+    }
+}

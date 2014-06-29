@@ -1,0 +1,8 @@
+package com.bignerdranch.android.criminalintent;
+
+public class ContextMenuFactory {
+
+    public static void makeContextMenu(ListFragment fragment, ListView view) {
+
+    }
+}

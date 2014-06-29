@@ -1,12 +1,21 @@
 /Users/mdalton/Android/CriminalIntent/gen/com/bignerdranch/android/criminalintent/R.java \
- : /Users/mdalton/Android/CriminalIntent/res/drawable-hdpi/ic_launcher.png \
+ : /Users/mdalton/Android/CriminalIntent/res/drawable/background_activated.xml \
+/Users/mdalton/Android/CriminalIntent/res/drawable-hdpi/ic_launcher.png \
 /Users/mdalton/Android/CriminalIntent/res/drawable-ldpi/ic_launcher.png \
 /Users/mdalton/Android/CriminalIntent/res/drawable-mdpi/ic_launcher.png \
 /Users/mdalton/Android/CriminalIntent/res/drawable-xhdpi/ic_launcher.png \
 /Users/mdalton/Android/CriminalIntent/res/layout/activity_fragment.xml \
+/Users/mdalton/Android/CriminalIntent/res/layout/dialog_date.xml \
+/Users/mdalton/Android/CriminalIntent/res/layout/dialog_time.xml \
 /Users/mdalton/Android/CriminalIntent/res/layout/fragment_crime.xml \
+/Users/mdalton/Android/CriminalIntent/res/layout/fragment_crime_list.xml \
 /Users/mdalton/Android/CriminalIntent/res/layout/list_item_crime.xml \
 /Users/mdalton/Android/CriminalIntent/res/layout-land/fragment_crime.xml \
+/Users/mdalton/Android/CriminalIntent/res/menu/crime_list_item_context.xml \
+/Users/mdalton/Android/CriminalIntent/res/menu/fragment_crime.xml \
+/Users/mdalton/Android/CriminalIntent/res/menu/fragment_crime_list.xml \
+/Users/mdalton/Android/CriminalIntent/res/menu-v11/fragment_crime_list.xml \
+/Users/mdalton/Android/CriminalIntent/res/values/ids.xml \
 /Users/mdalton/Android/CriminalIntent/res/values/strings.xml \
 /Users/mdalton/Android/CriminalIntent/bin/res/drawable-hdpi/ic_launcher.png \
 /Users/mdalton/Android/CriminalIntent/bin/res/drawable-ldpi/ic_launcher.png \

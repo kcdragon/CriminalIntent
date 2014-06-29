@@ -1,0 +1,33 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+  <ListView
+      android:id="@android:id/list"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      />
+
+  <LinearLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@android:id/empty"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical">
+
+    <TextView
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="@string/empty_crime_list"
+	/>
+
+    <Button
+	android:id="@+id/new_crime"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:text="@string/new_crime"
+	/>
+  </LinearLayout>
+</FrameLayout>

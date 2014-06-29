@@ -1,0 +1,10 @@
+package com.bignerdranch.android.criminalintent;
+
+public class CrimePagerActivity extends FragmentActivity {
+    private ViewPager mViewPager;
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+    }
+}
