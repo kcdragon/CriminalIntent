@@ -124,9 +124,7 @@ public class CrimeFragment extends Fragment {
 	    return true;
 	case R.id.menu_item_delete_current_crime:
 	    getCrimeLab().deleteCrime(mCrime);
-	    if (hasParent()) {
-		NavUtils.navigateUpFromSameTask(getActivity());
-	    }
+	    getActivity().finish();
 	    return true;
 	default:
 	    return super.onOptionsItemSelected(item);
