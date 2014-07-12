@@ -6,7 +6,9 @@ import java.util.UUID;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
+import android.content.pm.*;
+import android.hardware.Camera;
+import android.os.*;
 import android.support.v4.app.*;
 import android.text.*;
 import android.view.*;
@@ -25,6 +27,7 @@ public class CrimeFragment extends Fragment {
     private Button mDateButton;
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
+    private ImageButton mPhotoButton;
 
     public static CrimeFragment newInstance(final UUID crimeId) {
 	final Bundle args = new Bundle();
@@ -104,6 +107,23 @@ public class CrimeFragment extends Fragment {
 		mCrime.setSolved(isChecked);
 	    }
 	});
+
+        mPhotoButton = (ImageButton) view.findViewById(R.id.crime_imageButton);
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), CrimeCameraActivity.class);
+                startActivity(i);
+            }
+        });
+
+        PackageManager pm = getActivity().getPackageManager();
+        boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+            pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD && Camera.getNumberOfCameras() > 0);
+        if (!hasACamera) {
+            mPhotoButton.setEnabled(false);
+        }
 
 	return view;
     }
