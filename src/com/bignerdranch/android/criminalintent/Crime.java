@@ -12,6 +12,7 @@ import lombok.*;
 public class Crime {
 
     private static final List<Listener> listeners = new ArrayList<Listener>();
+    private static final List<CrimeListener> crimeListeners = new ArrayList<CrimeListener>();
 
     public static List<Listener> getListeners() {
 	return listeners;
@@ -19,6 +20,14 @@ public class Crime {
 
     public static void addListener(final Listener listener) {
 	listeners.add(listener);
+    }
+
+    public static void addCrimeListener(CrimeListener listener) {
+        crimeListeners.add(listener);
+    }
+
+    public static void removeCrimeListener(CrimeListener listener) {
+        crimeListeners.remove(listener);
     }
 
     @Getter private UUID id;
@@ -48,6 +57,10 @@ public class Crime {
     }
 
     public void setPhoto(final Photo photo) {
+        for(CrimeListener listener : crimeListeners) {
+            listener.photoChange(this.photo, photo);
+        }
+
         this.photo = photo;
         notifyListeners();
     }

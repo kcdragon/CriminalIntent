@@ -37,7 +37,9 @@ public class CrimeFragment extends Fragment {
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
 
-    public static CrimeFragment newInstance(final UUID crimeId) {
+    private ActionMode photoViewActionMode;
+
+    public static CrimeFragment newInstance(UUID crimeId) {
 	final Bundle args = new Bundle();
 	args.putSerializable(EXTRA_CRIME_ID, crimeId);
 
@@ -48,7 +50,7 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(final Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 	setHasOptionsMenu(true);
 
@@ -57,51 +59,42 @@ public class CrimeFragment extends Fragment {
 
     @TargetApi(11)
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup parent, final Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
 	final View view = inflater.inflate(R.layout.fragment_crime, parent, false);
 
-	if (VersionChecker.isEleven()) {
-	    if (hasParent()) {
-		getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-	    }
+	if (VersionChecker.isEleven() && hasParent()) {
+            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
+
+        Crime.addCrimeListener(photoChangeListener);
 
 	mTitleField = (EditText) view.findViewById(R.id.crime_title);
 	mTitleField.setText(mCrime.getTitle());
 	mTitleField.addTextChangedListener(new TextWatcher() {
-	    @Override
-	    public void onTextChanged(final CharSequence c, final int start, final int before, final int count) {
+	    public void onTextChanged(CharSequence c, int start, int before, int count) {
 		mCrime.setTitle(c.toString());
 	    }
 
-	    @Override
-	    public void beforeTextChanged(final CharSequence c, final int start, final int count, final int after) {}
+	    public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
 
-	    @Override
-	    public void afterTextChanged(final Editable e) {}
+	    public void afterTextChanged(Editable e) {}
 	});
 
 	mDateButton = (Button) view.findViewById(R.id.crime_date);
 	mDateButton.setOnClickListener(new View.OnClickListener() {
-	    @Override
 	    public void onClick(final View view) {
-		final FragmentManager fm = getActivity()
-		    .getSupportFragmentManager();
-		final DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
+		DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
 		dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
-		dialog.show(fm, DIALOG_DATE);
+		dialog.show(getSupportFragmentManager(), DIALOG_DATE);
 	    }
 	});
 
 	mTimeButton = (Button) view.findViewById(R.id.crime_time);
 	mTimeButton.setOnClickListener(new View.OnClickListener() {
-	    @Override
 	    public void onClick(final View view) {
-		final FragmentManager fm = getActivity()
-		    .getSupportFragmentManager();
-		final TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
+		TimePickerFragment dialog = TimePickerFragment.newInstance(mCrime.getDate());
 		dialog.setTargetFragment(CrimeFragment.this, REQUEST_TIME);
-		dialog.show(fm, DIALOG_TIME);
+		dialog.show(getSupportFragmentManager(), DIALOG_TIME);
 	    }
 	});
 
@@ -110,7 +103,6 @@ public class CrimeFragment extends Fragment {
 	mSolvedCheckBox = (CheckBox) view.findViewById(R.id.crime_solved);
 	mSolvedCheckBox.setChecked(mCrime.isSolved());
 	mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-	    @Override
 	    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 		mCrime.setSolved(isChecked);
 	    }
@@ -118,9 +110,8 @@ public class CrimeFragment extends Fragment {
 
         mPhotoButton = (ImageButton) view.findViewById(R.id.crime_imageButton);
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CrimeCameraActivity.class);
+                Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
                 startActivityForResult(i, REQUEST_PHOTO);
             }
         });
@@ -129,25 +120,93 @@ public class CrimeFragment extends Fragment {
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Photo photo = mCrime.getPhoto();
-                if (photo == null) {
-                    return;
+                if (photo != null) {
+                    String path = getActivity().getFileStreamPath(photo.getFilename()).getAbsolutePath();
+                    ImageFragment.newInstance(path, photo.getOrientation()).show(getSupportFragmentManager(), DIALOG_IMAGE);
                 }
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                String path = getActivity().getFileStreamPath(photo.getFilename()).getAbsolutePath();
-                ImageFragment.newInstance(path, photo.getOrientation()).show(fm, DIALOG_IMAGE);
             }
         });
 
-        PackageManager pm = getActivity().getPackageManager();
-        boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
-            pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
-            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD && Camera.getNumberOfCameras() > 0);
-        if (!hasACamera) {
-            mPhotoButton.setEnabled(false);
+        if (VersionChecker.isEleven()) {
+            mPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
+                public boolean onLongClick(View view) {
+                
+                    if (photoViewActionMode != null) {
+                        return false;
+                    }
+                    else {
+                        photoViewActionMode = getActivity().startActionMode(new ActionMode.Callback() {
+                            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                                MenuInflater inflater = mode.getMenuInflater();
+                                inflater.inflate(R.menu.crime_context, menu);
+                                return true;
+                            }
+
+                            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                                return false;
+                            }
+
+                            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                                switch (item.getItemId()) {
+                                case R.id.crime_delete_photo:
+                                    deletePhoto();
+                                    mode.finish();
+                                    return true;
+                                default:
+                                    return false;
+                                }
+                            }
+
+                            public void onDestroyActionMode(ActionMode mode) {
+                                photoViewActionMode = null;
+                            }
+                        });
+                        view.setSelected(true);
+                        return true;
+                    }
+                }
+            });
+        }
+        else {
+            registerForContextMenu(mPhotoView);
         }
 
+        disablePhotoButtonIfNoCamera();
+
 	return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+            case REQUEST_DATE:
+                Date date = (Date) intent
+                    .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                mCrime.setDate(date);
+                updateDate();
+                break;
+
+            case REQUEST_TIME:
+                Date time = (Date) intent
+                    .getSerializableExtra(TimePickerFragment.EXTRA_TIME);
+                mCrime.setDate(time);
+                updateDate();
+                break;
+
+            case REQUEST_PHOTO:
+                String filename = intent.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
+                if (filename != null) {
+                    Display display = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                    int orientation = display.getRotation();
+
+                    Photo photo = new Photo(filename, orientation);
+                    mCrime.setPhoto(photo);
+                    showPhoto();
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -174,6 +233,22 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	getActivity().getMenuInflater().inflate(R.menu.crime_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.crime_delete_photo:
+            deletePhoto();
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         showPhoto();
@@ -192,34 +267,13 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-	if (requestCode == REQUEST_DATE &&
-	    resultCode == Activity.RESULT_OK) {
+    public void onDestroyView() {
+        super.onDestroyView();
+        Crime.removeCrimeListener(photoChangeListener);
+    }
 
-	    final Date date = (Date) intent
-		.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-	    mCrime.setDate(date);
-	    updateDate();
-	}
-	else if (requestCode == REQUEST_TIME &&
-	    resultCode == Activity.RESULT_OK) {
-
-	    final Date date = (Date) intent
-		.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
-	    mCrime.setDate(date);
-	    updateDate();
-	}
-        else if (requestCode == REQUEST_PHOTO) {
-            String filename = intent.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
-            if (filename != null) {
-                Display display = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                int orientation = display.getRotation();
-
-                Photo photo = new Photo(filename, orientation);
-                mCrime.setPhoto(photo);
-                showPhoto();
-            }
-        }
+    private FragmentManager getSupportFragmentManager() {
+        return getActivity().getSupportFragmentManager();
     }
 
     private Crime getCurrentCrime() {
@@ -240,6 +294,16 @@ public class CrimeFragment extends Fragment {
 	return CrimeLab.get(getActivity());
     }
 
+    private void disablePhotoButtonIfNoCamera() {
+        PackageManager pm = getActivity().getPackageManager();
+        boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+            pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT) ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD && Camera.getNumberOfCameras() > 0);
+        if (!hasACamera) {
+            mPhotoButton.setEnabled(false);
+        }
+    }
+
     private void showPhoto() {
         Photo photo = mCrime.getPhoto();
         BitmapDrawable drawable = null;
@@ -253,4 +317,19 @@ public class CrimeFragment extends Fragment {
         }
         mPhotoView.setImageDrawable(drawable);
     }
+
+    private void deletePhoto() {
+        mCrime.setPhoto(null);
+        mPhotoView.setImageDrawable(null);
+    }
+
+    private CrimeListener photoChangeListener = new CrimeListener() {
+        @Override
+        public void photoChange(Photo currentPhoto, Photo newPhoto) {
+            if (currentPhoto != null) {
+                String previousFilename = currentPhoto.getFilename();
+                getActivity().deleteFile(previousFilename);
+            }
+        }
+    };
 }
