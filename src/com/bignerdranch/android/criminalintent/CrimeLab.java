@@ -11,7 +11,7 @@ import org.json.*;
 
 public class CrimeLab {
 
-    private static final String FILENAME = "crimes.json";
+    private static final String FILENAME = "crimes-gson.json";
 
     private ArrayList<Crime> mCrimes;
     private CriminalIntentJSONSerializer mSerializer;
@@ -24,11 +24,7 @@ public class CrimeLab {
 	mSerializer = new CriminalIntentJSONSerializer(mAppContext, FILENAME);
 
 	try {
-	    mCrimes = mSerializer.loadCrimes();
-	}
-	catch (JSONException e) {
-	    mCrimes = new ArrayList<Crime>();
-	    Log.e("CrimeLab", "Error loading crimes: ", e);
+            mCrimes = mSerializer.loadCrimes();
 	}
 	catch (IOException e) {
 	    mCrimes = new ArrayList<Crime>();
@@ -78,13 +74,9 @@ public class CrimeLab {
     public boolean saveCrimes() {
 	try {
 	    Log.d("CrimeLab", "attempting to save crimes to file");
-	    mSerializer.saveCrimes(mCrimes);
+            mSerializer.saveCrimes(mCrimes);
 	    Log.d("CrimeLab", "crimes saved to file");
 	    return true;
-	}
-	catch (JSONException e) {
-	    Log.e("CrimeLab", "Error saving crimes: ", e);
-	    return false;
 	}
 	catch (IOException e) {
 	    Log.e("CrimeLab", "Error saving crimes: ", e);

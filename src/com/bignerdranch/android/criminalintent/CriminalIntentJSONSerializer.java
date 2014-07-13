@@ -1,11 +1,15 @@
 package com.bignerdranch.android.criminalintent;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import android.content.Context;
 
 import org.json.*;
+
+import com.google.gson.*;
+import com.google.gson.reflect.*;
 
 public class CriminalIntentJSONSerializer {
 
@@ -17,8 +21,8 @@ public class CriminalIntentJSONSerializer {
 	mFilename = filename;
     }
 
-    public ArrayList<Crime> loadCrimes() throws IOException, JSONException {
-	final ArrayList<Crime> crimes = new ArrayList<Crime>();
+    public ArrayList<Crime> loadCrimes() throws IOException {
+        ArrayList<Crime> crimes = new ArrayList<Crime>();
 	BufferedReader reader = null;
 	try {
 	    final InputStream in = mContext.openFileInput(mFilename);
@@ -29,11 +33,8 @@ public class CriminalIntentJSONSerializer {
 		jsonString.append(line);
 	    }
 
-	    final JSONArray array = (JSONArray) new JSONTokener(jsonString.toString()).nextValue();
-
-	    for (int i = 0; i < array.length(); i++) {
-		crimes.add(new Crime(array.getJSONObject(i)));
-	    }
+            Type crimeType = new TypeToken<ArrayList<Crime>>() {}.getType();
+            crimes = new Gson().fromJson(jsonString.toString(), crimeType);
 	}
 	catch (FileNotFoundException e) {
 	    // ignoring since there will not be a file when first starting the app
@@ -46,17 +47,12 @@ public class CriminalIntentJSONSerializer {
 	return crimes;
     }
 
-    public void saveCrimes(final ArrayList<Crime> crimes) throws JSONException, IOException {
-	final JSONArray array = new JSONArray();
-	for (final Crime crime : crimes) {
-	    array.put(crime.toJSON());
-	}
-
-	Writer writer = null;
+    public void saveCrimes(ArrayList<Crime> crimes) throws IOException, FileNotFoundException {
+        Writer writer = null;
 	try {
-	    final OutputStream out = mContext.openFileOutput(mFilename, Context.MODE_PRIVATE);
+	    OutputStream out = mContext.openFileOutput(mFilename, Context.MODE_PRIVATE);
 	    writer = new OutputStreamWriter(out);
-	    writer.write(array.toString());
+	    writer.write(new Gson().toJson(crimes));
 	}
 	finally {
 	    if (writer != null) {

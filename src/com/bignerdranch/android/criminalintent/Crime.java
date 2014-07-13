@@ -7,17 +7,9 @@ import java.util.UUID;
 
 import android.text.format.DateFormat;
 
-import org.json.*;
-
 import lombok.*;
 
 public class Crime {
-
-    private static final String JSON_ID = "id";
-    private static final String JSON_TITLE = "title";
-    private static final String JSON_SOLVED = "solved";
-    private static final String JSON_DATE = "date";
-    private static final String JSON_PHOTO = "photo";
 
     private static final List<Listener> listeners = new ArrayList<Listener>();
 
@@ -38,18 +30,6 @@ public class Crime {
     public Crime() {
 	id = UUID.randomUUID();
 	date = new Date();
-    }
-
-    public Crime(final JSONObject json) throws JSONException {
-	id = UUID.fromString(json.getString(JSON_ID));
-	if (json.has(JSON_TITLE)) {
-	    title = json.getString(JSON_TITLE);
-	}
-	solved = json.getBoolean(JSON_SOLVED);
-	date = new Date(json.getLong(JSON_DATE));
-        if (json.has(JSON_PHOTO))  {
-            photo = new Photo(json.getJSONObject(JSON_PHOTO));
-        }
     }
 
     public void setTitle(final String title) {
@@ -86,18 +66,6 @@ public class Crime {
 	for(Listener l: listeners) {
 	    l.modelChange();
 	}
-    }
-
-    public JSONObject toJSON() throws JSONException {
-	final JSONObject json = new JSONObject();
-	json.put(JSON_ID, id.toString());
-	json.put(JSON_TITLE, title);
-	json.put(JSON_SOLVED, solved);
-	json.put(JSON_DATE, date.getTime());
-        if (photo != null) {
-            json.put(JSON_PHOTO, photo.toJSON());
-        }
-	return json;
     }
 
     @Override
