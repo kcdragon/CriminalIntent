@@ -5,22 +5,29 @@ import java.util.UUID;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Intent;
+import android.content.*;
 import android.content.pm.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
 import android.hardware.Camera;
 import android.os.*;
 import android.support.v4.app.*;
 import android.text.*;
 import android.view.*;
+import android.util.Log;
 import android.widget.*;
 
 public class CrimeFragment extends Fragment {
 
     public static final String EXTRA_CRIME_ID = "com.bignerdranch.android.criminalintent.crime_id";
+
     private static final String DIALOG_DATE = "date";
     private static final String DIALOG_TIME = "time";
+    private static final String DIALOG_IMAGE = "image";
+
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
+    private static final int REQUEST_PHOTO = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -28,6 +35,7 @@ public class CrimeFragment extends Fragment {
     private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
     private ImageButton mPhotoButton;
+    private ImageView mPhotoView;
 
     public static CrimeFragment newInstance(final UUID crimeId) {
 	final Bundle args = new Bundle();
@@ -113,7 +121,21 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CrimeCameraActivity.class);
-                startActivity(i);
+                startActivityForResult(i, REQUEST_PHOTO);
+            }
+        });
+
+        mPhotoView = (ImageView) view.findViewById(R.id.crime_imageView);
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Photo photo = mCrime.getPhoto();
+                if (photo == null) {
+                    return;
+                }
+
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                String path = getActivity().getFileStreamPath(photo.getFilename()).getAbsolutePath();
+                ImageFragment.newInstance(path, photo.getOrientation()).show(fm, DIALOG_IMAGE);
             }
         });
 
@@ -152,6 +174,18 @@ public class CrimeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        showPhoto();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        PictureUtils.cleanImageView(mPhotoView);
+    }
+
+    @Override
     public void onPause() {
 	super.onPause();
 	getCrimeLab().saveCrimes();
@@ -167,8 +201,7 @@ public class CrimeFragment extends Fragment {
 	    mCrime.setDate(date);
 	    updateDate();
 	}
-
-	if (requestCode == REQUEST_TIME &&
+	else if (requestCode == REQUEST_TIME &&
 	    resultCode == Activity.RESULT_OK) {
 
 	    final Date date = (Date) intent
@@ -176,6 +209,17 @@ public class CrimeFragment extends Fragment {
 	    mCrime.setDate(date);
 	    updateDate();
 	}
+        else if (requestCode == REQUEST_PHOTO) {
+            String filename = intent.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_FILENAME);
+            if (filename != null) {
+                Display display = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                int orientation = display.getRotation();
+
+                Photo photo = new Photo(filename, orientation);
+                mCrime.setPhoto(photo);
+                showPhoto();
+            }
+        }
     }
 
     private Crime getCurrentCrime() {
@@ -194,5 +238,19 @@ public class CrimeFragment extends Fragment {
 
     private CrimeLab getCrimeLab() {
 	return CrimeLab.get(getActivity());
+    }
+
+    private void showPhoto() {
+        Photo photo = mCrime.getPhoto();
+        BitmapDrawable drawable = null;
+        if (photo != null) {
+            String path = getActivity().getFileStreamPath(photo.getFilename()).getAbsolutePath();
+            drawable = PictureUtils.getScaledDrawable(getActivity(), path);
+
+            if (photo.getOrientation() == 0) {
+                drawable = PictureUtils.getRotatedDrawable(drawable);
+            }
+        }
+        mPhotoView.setImageDrawable(drawable);
     }
 }

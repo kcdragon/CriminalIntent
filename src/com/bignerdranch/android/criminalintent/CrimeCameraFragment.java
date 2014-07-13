@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import android.app.Activity;
 import android.content.*;
 import android.hardware.Camera;
 import android.os.*;
@@ -16,6 +17,8 @@ import android.util.Log;
 public class CrimeCameraFragment extends Fragment {
 
     private static final String TAG = CrimeCameraFragment.class.getCanonicalName();
+
+    public static final String EXTRA_PHOTO_FILENAME = "com.bignerdranch.android.criminalintent.photo_filename";
 
     private Camera camera;
     private SurfaceView surfaceView;
@@ -53,7 +56,12 @@ public class CrimeCameraFragment extends Fragment {
             }
 
             if (success) {
-                Log.i(TAG, "JPEG saved at " + filename);
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_PHOTO_FILENAME, filename);
+                getActivity().setResult(Activity.RESULT_OK, intent);
+            }
+            else {
+                getActivity().setResult(Activity.RESULT_CANCELED);
             }
             getActivity().finish();
         }

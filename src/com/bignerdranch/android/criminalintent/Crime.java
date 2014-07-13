@@ -17,6 +17,7 @@ public class Crime {
     private static final String JSON_TITLE = "title";
     private static final String JSON_SOLVED = "solved";
     private static final String JSON_DATE = "date";
+    private static final String JSON_PHOTO = "photo";
 
     private static final List<Listener> listeners = new ArrayList<Listener>();
 
@@ -32,6 +33,7 @@ public class Crime {
     @Getter private String title;
     @Getter private Date date;
     @Getter private boolean solved;
+    @Getter private Photo photo;
 
     public Crime() {
 	id = UUID.randomUUID();
@@ -45,6 +47,9 @@ public class Crime {
 	}
 	solved = json.getBoolean(JSON_SOLVED);
 	date = new Date(json.getLong(JSON_DATE));
+        if (json.has(JSON_PHOTO))  {
+            photo = new Photo(json.getJSONObject(JSON_PHOTO));
+        }
     }
 
     public void setTitle(final String title) {
@@ -60,6 +65,11 @@ public class Crime {
     public void setSolved(final Boolean solved) {
 	this.solved = solved;
 	notifyListeners();
+    }
+
+    public void setPhoto(final Photo photo) {
+        this.photo = photo;
+        notifyListeners();
     }
 
     public CharSequence getFormattedDate() {
@@ -84,6 +94,9 @@ public class Crime {
 	json.put(JSON_TITLE, title);
 	json.put(JSON_SOLVED, solved);
 	json.put(JSON_DATE, date.getTime());
+        if (photo != null) {
+            json.put(JSON_PHOTO, photo.toJSON());
+        }
 	return json;
     }
 
