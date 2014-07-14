@@ -112,7 +112,7 @@ public class CrimeFragment extends Fragment {
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
-                startActivityForResult(i, REQUEST_PHOTO);
+                startActivityForResult(intent, REQUEST_PHOTO);
             }
         });
 
