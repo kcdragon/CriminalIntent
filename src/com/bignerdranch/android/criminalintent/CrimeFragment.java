@@ -7,12 +7,16 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.*;
+import android.database.Cursor;
 import android.graphics.*;
 import android.graphics.drawable.*;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.*;
+import android.provider.*;
 import android.support.v4.app.*;
 import android.text.*;
+import android.text.format.*;
 import android.view.*;
 import android.util.Log;
 import android.widget.*;
@@ -28,6 +32,7 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
     private static final int REQUEST_PHOTO = 2;
+    private static final int REQUEST_CONTACT = 3;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -36,6 +41,7 @@ public class CrimeFragment extends Fragment {
     private CheckBox mSolvedCheckBox;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
+    private Button mSuspectButton;
 
     private ActionMode photoViewActionMode;
 
@@ -173,6 +179,31 @@ public class CrimeFragment extends Fragment {
 
         disablePhotoButtonIfNoCamera();
 
+        Button reportButton = (Button) view.findViewById(R.id.crime_reportButton);
+        reportButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+                intent = Intent.createChooser(intent, getString(R.string.send_report));
+                startActivity(intent);
+            }
+        });
+
+        mSuspectButton = (Button) view.findViewById(R.id.crime_suspectButton);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                                           ContactsContract.Contacts.CONTENT_URI);
+                startActivityForResult(intent, REQUEST_CONTACT);
+            }
+        });
+
+        if (mCrime.getSuspect() != null) {
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
+
 	return view;
     }
 
@@ -204,6 +235,22 @@ public class CrimeFragment extends Fragment {
                     mCrime.setPhoto(photo);
                     showPhoto();
                 }
+                break;
+            case REQUEST_CONTACT:
+                Uri contactUri = intent.getData();
+                String[] queryFields = new String[] {
+                    ContactsContract.Contacts.DISPLAY_NAME
+                };
+                Cursor cursor = getActivity().getContentResolver().
+                    query(contactUri, queryFields, null, null, null);
+
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    String suspect = cursor.getString(0);
+                    mCrime.setSuspect(suspect);
+                    mSuspectButton.setText(suspect);
+                }
+                cursor.close();
                 break;
             }
         }
@@ -276,6 +323,16 @@ public class CrimeFragment extends Fragment {
         return getActivity().getSupportFragmentManager();
     }
 
+    private boolean hasParent() {
+	return NavUtils.getParentActivityName(getActivity()) != null;
+    }
+
+    
+    /**
+     * Crime
+     *
+     */
+
     private Crime getCurrentCrime() {
 	final UUID crimeId = (UUID) getArguments().getSerializable(EXTRA_CRIME_ID);
 	return getCrimeLab().getCrime(crimeId);
@@ -286,13 +343,15 @@ public class CrimeFragment extends Fragment {
 	mTimeButton.setText(mCrime.getFormattedTime());
     }
 
-    private boolean hasParent() {
-	return NavUtils.getParentActivityName(getActivity()) != null;
-    }
-
     private CrimeLab getCrimeLab() {
 	return CrimeLab.get(getActivity());
     }
+
+
+    /**
+     * Crime Photo
+     *
+     */
 
     private void disablePhotoButtonIfNoCamera() {
         PackageManager pm = getActivity().getPackageManager();
@@ -332,4 +391,36 @@ public class CrimeFragment extends Fragment {
             }
         }
     };
+
+    
+    /**
+     * Crime Report
+     *
+     */
+
+    private String getCrimeReport() {
+        String solvedString = null;
+        if (mCrime.isSolved()) {
+            solvedString = getString(R.string.crime_report_solved);
+        }
+        else {
+            solvedString = getString(R.string.crime_report_unsolved);
+        }
+
+        String dateFormat = "EEE, MMM dd";
+        String dateString = DateFormat.format(dateFormat, mCrime.getDate()).toString();
+        
+        String suspect = mCrime.getSuspect();
+        if (suspect == null) {
+            suspect = getString(R.string.crime_report_no_suspect);
+        }
+        else {
+            suspect = getString(R.string.crime_report_suspect, suspect);
+        }
+
+        String report = getString(R.string.crime_report,
+                                  mCrime.getTitle(), dateString, solvedString, suspect);
+
+        return report;
+    }
 }

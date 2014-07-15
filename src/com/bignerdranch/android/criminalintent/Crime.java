@@ -35,34 +35,40 @@ public class Crime {
     @Getter private Date date;
     @Getter private boolean solved;
     @Getter private Photo photo;
+    @Getter private String suspect;
 
     public Crime() {
 	id = UUID.randomUUID();
 	date = new Date();
     }
 
-    public void setTitle(final String title) {
+    public void setTitle(String title) {
 	this.title = title;
 	notifyListeners();
     }
 
-    public void setDate(final Date date) {
+    public void setDate(Date date) {
 	this.date = date;
 	notifyListeners();
     }
 
-    public void setSolved(final Boolean solved) {
+    public void setSolved(Boolean solved) {
 	this.solved = solved;
 	notifyListeners();
     }
 
-    public void setPhoto(final Photo photo) {
+    public void setPhoto(Photo photo) {
         for(CrimeListener listener : crimeListeners) {
             listener.photoChange(this.photo, photo);
         }
 
         this.photo = photo;
         notifyListeners();
+    }
+
+    public void setSuspect(String suspect) {
+	this.suspect = suspect;
+	notifyListeners();
     }
 
     public CharSequence getFormattedDate() {
