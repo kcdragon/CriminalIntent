@@ -36,6 +36,7 @@ public class Crime {
     @Getter private boolean solved;
     @Getter private Photo photo;
     @Getter private String suspect;
+    @Getter private String suspectPhoneNumber;
 
     public Crime() {
 	id = UUID.randomUUID();
@@ -68,6 +69,11 @@ public class Crime {
 
     public void setSuspect(String suspect) {
 	this.suspect = suspect;
+	notifyListeners();
+    }
+
+    public void setSuspectPhoneNumber(String suspectPhoneNumber) {
+	this.suspectPhoneNumber = suspectPhoneNumber;
 	notifyListeners();
     }
 

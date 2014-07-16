@@ -42,6 +42,7 @@ public class CrimeFragment extends Fragment {
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
     private Button mSuspectButton;
+    private Button mCallButton;
 
     private ActionMode photoViewActionMode;
 
@@ -204,6 +205,23 @@ public class CrimeFragment extends Fragment {
             mSuspectButton.setText(mCrime.getSuspect());
         }
 
+        mCallButton = (Button) view.findViewById(R.id.crime_callButton);
+        mCallButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                Uri phoneNumberUri = Uri.parse("tel:" + mCrime.getSuspectPhoneNumber());
+                intent.setData(phoneNumberUri);
+                startActivity(intent);
+            }
+        });
+
+        if (mCrime.getSuspectPhoneNumber() != null) {
+            mCallButton.setText(mCrime.getSuspectPhoneNumber());
+        }
+        else {
+            mCallButton.setEnabled(false);
+        }
+
 	return view;
     }
 
@@ -239,16 +257,33 @@ public class CrimeFragment extends Fragment {
             case REQUEST_CONTACT:
                 Uri contactUri = intent.getData();
                 String[] queryFields = new String[] {
-                    ContactsContract.Contacts.DISPLAY_NAME
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts.HAS_PHONE_NUMBER
                 };
                 Cursor cursor = getActivity().getContentResolver().
                     query(contactUri, queryFields, null, null, null);
 
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
-                    String suspect = cursor.getString(0);
+                    String suspect = cursor.getString(1);
                     mCrime.setSuspect(suspect);
                     mSuspectButton.setText(suspect);
+
+                    boolean hasPhoneNumber = cursor.getString(2).equals("1");
+                    if (hasPhoneNumber) {
+                        String id = cursor.getString(0);
+                        queryFields = new String[] {
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        };
+                        Cursor phones = getActivity().getContentResolver().
+                            query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, queryFields, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
+                        phones.moveToFirst();
+                        String phoneNumber = phones.getString(0);
+                        mCrime.setSuspectPhoneNumber(phoneNumber);
+                        mCallButton.setText(phoneNumber);
+                        mCallButton.setEnabled(true);
+                    }
                 }
                 cursor.close();
                 break;
