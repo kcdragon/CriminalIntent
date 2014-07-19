@@ -47,6 +47,7 @@ public class CrimeLab {
 
     public void addCrime(final Crime crime) {
 	mCrimes.add(crime);
+        notifyListeners();
     }
 
     public void deleteCrime(final Crime crime) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.*;
@@ -13,6 +14,23 @@ import android.widget.*;
 public class CrimeListFragment extends ListFragment {
     private ArrayList<Crime> mCrimes;
     private boolean mSubtitleVisible;
+    private Callbacks mCallbacks;
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Activity activity)  {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -97,9 +115,8 @@ public class CrimeListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
-	final Crime crime = ((CrimeAdapter) getListAdapter()).getItem(position);
-	final Intent intent = createIntentForCrime(crime);
-	startActivity(intent);
+	Crime crime = ((CrimeAdapter) getListAdapter()).getItem(position);
+        mCallbacks.onCrimeSelected(crime);
     }
 
     @Override
@@ -135,15 +152,15 @@ public class CrimeListFragment extends ListFragment {
     		    .inflate(R.layout.list_item_crime, null);
     	    }
 
-    	    final Crime c = getItem(position);
+    	    Crime c = getItem(position);
 
-    	    final TextView titleTextView = (TextView) convertView.findViewById(R.id.crime_list_item_titleTextView);
+    	    TextView titleTextView = (TextView) convertView.findViewById(R.id.crime_list_item_titleTextView);
     	    titleTextView.setText(c.getTitle());
 
-    	    final TextView dateTextView = (TextView) convertView.findViewById(R.id.crime_list_item_dateTextView);
+    	    TextView dateTextView = (TextView) convertView.findViewById(R.id.crime_list_item_dateTextView);
     	    dateTextView.setText(c.getFormattedDate() + " " + c.getFormattedTime());
 
-    	    final CheckBox solvedCheckBox = (CheckBox) convertView.findViewById(R.id.crime_list_item_solvedCheckBox);
+    	    CheckBox solvedCheckBox = (CheckBox) convertView.findViewById(R.id.crime_list_item_solvedCheckBox);
     	    solvedCheckBox.setChecked(c.isSolved());
 
     	    return convertView;
@@ -155,15 +172,8 @@ public class CrimeListFragment extends ListFragment {
     }
 
     private void startCrimePagerForNewCrime() {
-	final Crime crime = getCrimeLab().createCrime();
-	final Intent intent = createIntentForCrime(crime);
-	startActivityForResult(intent, 0);
-    }
-
-    private Intent createIntentForCrime(final Crime crime) {
-	final Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
-	intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
-	return intent;
+	Crime crime = getCrimeLab().createCrime();
+        mCallbacks.onCrimeSelected(crime);
     }
 
     private void showSubtitle() {
@@ -174,5 +184,9 @@ public class CrimeListFragment extends ListFragment {
     private void hideSubtitle() {
 	getActivity().getActionBar().setSubtitle(null);
 	mSubtitleVisible = false;
+    }
+
+    public void updateUI() {
+        ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
     }
 }

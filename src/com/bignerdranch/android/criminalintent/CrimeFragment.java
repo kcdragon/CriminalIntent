@@ -43,8 +43,13 @@ public class CrimeFragment extends Fragment {
     private ImageView mPhotoView;
     private Button mSuspectButton;
     private Button mCallButton;
+    private Callbacks mCallbacks;
 
     private ActionMode photoViewActionMode;
+
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
 
     public static CrimeFragment newInstance(UUID crimeId) {
 	final Bundle args = new Bundle();
@@ -54,6 +59,18 @@ public class CrimeFragment extends Fragment {
 	fragment.setArguments(args);
 
 	return fragment;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
     }
 
     @Override
@@ -80,6 +97,7 @@ public class CrimeFragment extends Fragment {
 	mTitleField.addTextChangedListener(new TextWatcher() {
 	    public void onTextChanged(CharSequence c, int start, int before, int count) {
 		mCrime.setTitle(c.toString());
+                mCallbacks.onCrimeUpdated(mCrime);
 	    }
 
 	    public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
@@ -112,6 +130,7 @@ public class CrimeFragment extends Fragment {
 	mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 	    public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 		mCrime.setSolved(isChecked);
+                mCallbacks.onCrimeUpdated(mCrime);
 	    }
 	});
 
@@ -137,7 +156,7 @@ public class CrimeFragment extends Fragment {
         if (VersionChecker.isEleven()) {
             mPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
                 public boolean onLongClick(View view) {
-                
+
                     if (photoViewActionMode != null) {
                         return false;
                     }
@@ -233,6 +252,7 @@ public class CrimeFragment extends Fragment {
                 Date date = (Date) intent
                     .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
                 mCrime.setDate(date);
+                mCallbacks.onCrimeUpdated(mCrime);
                 updateDate();
                 break;
 
@@ -240,6 +260,7 @@ public class CrimeFragment extends Fragment {
                 Date time = (Date) intent
                     .getSerializableExtra(TimePickerFragment.EXTRA_TIME);
                 mCrime.setDate(time);
+                mCallbacks.onCrimeUpdated(mCrime);
                 updateDate();
                 break;
 
@@ -251,6 +272,7 @@ public class CrimeFragment extends Fragment {
 
                     Photo photo = new Photo(filename, orientation);
                     mCrime.setPhoto(photo);
+                    mCallbacks.onCrimeUpdated(mCrime);
                     showPhoto();
                 }
                 break;
@@ -268,6 +290,7 @@ public class CrimeFragment extends Fragment {
                     cursor.moveToFirst();
                     String suspect = cursor.getString(1);
                     mCrime.setSuspect(suspect);
+                    mCallbacks.onCrimeUpdated(mCrime);
                     mSuspectButton.setText(suspect);
 
                     boolean hasPhoneNumber = cursor.getString(2).equals("1");
@@ -307,7 +330,9 @@ public class CrimeFragment extends Fragment {
 	    return true;
 	case R.id.menu_item_delete_current_crime:
 	    getCrimeLab().deleteCrime(mCrime);
-	    getActivity().finish();
+            if (hasParent()) {
+		NavUtils.navigateUpFromSameTask(getActivity());
+	    }
 	    return true;
 	default:
 	    return super.onOptionsItemSelected(item);
@@ -362,7 +387,7 @@ public class CrimeFragment extends Fragment {
 	return NavUtils.getParentActivityName(getActivity()) != null;
     }
 
-    
+
     /**
      * Crime
      *
@@ -427,7 +452,7 @@ public class CrimeFragment extends Fragment {
         }
     };
 
-    
+
     /**
      * Crime Report
      *
@@ -444,7 +469,7 @@ public class CrimeFragment extends Fragment {
 
         String dateFormat = "EEE, MMM dd";
         String dateString = DateFormat.format(dateFormat, mCrime.getDate()).toString();
-        
+
         String suspect = mCrime.getSuspect();
         if (suspect == null) {
             suspect = getString(R.string.crime_report_no_suspect);
